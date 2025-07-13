@@ -1,14 +1,27 @@
-from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity # Import for protection
+import json
+from flask import Blueprint, jsonify
+from flask_jwt_extended import jwt_required
 
 device_bp = Blueprint('device', __name__)
 
-# Dummy data for demonstration
-DUMMY_DEVICE_INFO = {"serial": "QC12345", "model": "SolarPanelX", "firmware": "1.0.1"}
+# Path to the devices JSON file
+DEVICES_FILE = 'devices.json'
 
+def load_device_info():
+    """Load device information from the JSON file."""
+    try:
+        with open(DEVICES_FILE, 'r') as f:
+            return json.load(f)['device']
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
 
 @device_bp.route('/info', methods=['GET'])
-@jwt_required() # <--- This decorator protects the route
+@jwt_required()
 def get_device_info():
-    # In a real app, add JWT authentication middleware here
-    return jsonify(DUMMY_DEVICE_INFO), 200
+    """Retrieve and return device information from the JSON file."""
+    device_info = load_device_info()
+    
+    if not device_info:
+        return jsonify({"msg": "Device information not found"}), 404
+
+    return jsonify(device_info), 200

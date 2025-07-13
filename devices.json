@@ -1,0 +1,9 @@
+{
+  "device": {
+    "deviceName": "iMX8-Device",
+    "ipAddress": "192.168.1.123",
+    "totalPhyMem": 8589934592,
+    "totalStorage": 34359738368,
+    "usedStorage": 17179869184
+  }
+}

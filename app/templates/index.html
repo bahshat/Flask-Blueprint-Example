@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Metrics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.2/socket.io.js"></script>
+</head>
+<body>
+    <h1>System Metrics</h1>
+    <div id="metrics"></div>
+    <hr>
+    <h2>Historic Data</h2>
+    <input type="text" id="start_time" placeholder="Start Time (YYYY-MM-DD HH:MM:SS)">
+    <input type="text" id="end_time" placeholder="End Time (YYYY-MM-DD HH:MM:SS)">
+    <button onclick="getHistoricData()">Get Historic Data</button>
+    <ul id="historic_data"></ul>
+
+    <script>
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.on('connect', () => {
+            console.log('Connected!');
+            socket.emit('join', {room: 'system_data'});
+        });
+
+        socket.on('status', (data) => {
+            console.log(data.msg);
+        });
+
+        socket.on('current_metrics_response', (data) => {
+            const metricsDiv = document.getElementById('metrics');
+            metricsDiv.innerHTML = `
+                <p>CPU Usage: ${data.cpuUsage}%</p>
+                <p>CPU Temp: ${data.cpuTemp}°C</p>
+                <p>Memory Used: ${data.memUsed} bytes</p>
+                <p>Network Sent: ${data.nwStatSent} bytes</p>
+                <p>Network Received: ${data.nwStatRecv} bytes</p>
+            `;
+        });
+
+        socket.on('historic_data_chunk', (data) => {
+            const historicDataUl = document.getElementById('historic_data');
+            data.forEach(row => {
+                const li = document.createElement('li');
+                li.textContent = row.join(', ');
+                historicDataUl.appendChild(li);
+            });
+        });
+
+        socket.on('historic_data_finished', () => {
+            console.log('Finished receiving historic data.');
+        });
+
+        function getCurrentMetrics() {
+            socket.emit('get_current_metrics', {room: 'system_data'});
+        }
+
+        function getHistoricData() {
+            const startTime = document.getElementById('start_time').value;
+            const endTime = document.getElementById('end_time').value;
+            document.getElementById('historic_data').innerHTML = ''; // Clear previous results
+            socket.emit('get_historic_metrics', {room: 'system_data', start_time: startTime, end_time: endTime});
+        }
+
+        // Request current metrics every 5 seconds
+        setInterval(getCurrentMetrics, 5000);
+
+    </script>
+</body>
+</html>
