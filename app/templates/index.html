@@ -19,7 +19,7 @@
 
         socket.on('connect', () => {
             console.log('Connected!');
-            socket.emit('join', {room: 'system_data'});
+            socket.emit('join', {device_type: 'web'});
         });
 
         socket.on('status', (data) => {
@@ -51,14 +51,14 @@
         });
 
         function getCurrentMetrics() {
-            socket.emit('get_current_metrics', {room: 'system_data'});
+            socket.emit('get_current_metrics');
         }
 
         function getHistoricData() {
             const startTime = document.getElementById('start_time').value;
             const endTime = document.getElementById('end_time').value;
             document.getElementById('historic_data').innerHTML = ''; // Clear previous results
-            socket.emit('get_historic_metrics', {room: 'system_data', start_time: startTime, end_time: endTime});
+            socket.emit('get_historic_metrics', {start_time: startTime, end_time: endTime});
         }
 
         // Request current metrics every 5 seconds
