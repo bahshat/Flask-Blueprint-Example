@@ -7,8 +7,8 @@ from app.services import system_monitor
 CURRENT_METRICS_ROOM = 'current_metrics_room'
 HISTORIC_DATA_ROOM = 'historic_data_room'
 
-# New: Function to handle metrics updates and emit via SocketIO
-def send_current_metrics_to_clients(new_metrics):
+# Function to handle metrics updates and emit via SocketIO
+def send_current_metrics(new_metrics):
     socketio.emit('current_metrics_response', new_metrics, room=CURRENT_METRICS_ROOM)
 
 # Register the callback when the application starts (or where socketio is initialized)
@@ -16,13 +16,12 @@ def send_current_metrics_to_clients(new_metrics):
 # In a typical Flask app, this would happen in your __init__.py or app.py after both are initialized.
 # For demonstration, we'll put it here.
 # Assuming this `sockets.py` is imported and its contents are run when the app starts.
-system_monitor.register_metrics_callback(send_current_metrics_to_clients)
+system_monitor.register_metrics_callback(send_current_metrics)
 
 
 @socketio.on('connect')
 def handle_connect():
     print('Client connected')
-    # No need to start logging here, as it's started by the app itself.
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -39,7 +38,6 @@ def on_join(data):
         join_room(HISTORIC_DATA_ROOM)
         emit('status', {'msg': f'Joined {HISTORIC_DATA_ROOM}'}, room=HISTORIC_DATA_ROOM)
 
-
 @socketio.on('leave')
 def on_leave(data):
     device_type = data.get('device_type', 'web')
@@ -51,7 +49,6 @@ def on_leave(data):
         leave_room(HISTORIC_DATA_ROOM)
         emit('status', {'msg': f'Left {HISTORIC_DATA_ROOM}'}, room=HISTORIC_DATA_ROOM)
 
-
 @socketio.on('get_historic_metrics')
 def handle_get_historic_metrics(data):
     start_time = data.get('start_time')
@@ -61,7 +58,7 @@ def handle_get_historic_metrics(data):
         def background_task():
             for chunk in get_historic_metrics(start_time, end_time):
                 emit('historic_data_chunk', chunk, room=HISTORIC_DATA_ROOM)
-                socketio.sleep(0.1)  # Yield to other tasks
+                socketio.sleep(0.1) 
             emit('historic_data_finished', room=HISTORIC_DATA_ROOM)
 
         socketio.start_background_task(background_task)
