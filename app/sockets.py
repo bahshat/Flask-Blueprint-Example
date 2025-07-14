@@ -7,15 +7,10 @@ from app.services import system_monitor
 CURRENT_METRICS_ROOM = 'current_metrics_room'
 HISTORIC_DATA_ROOM = 'historic_data_room'
 
-# Function to handle metrics updates and emit via SocketIO
-def send_current_metrics(new_metrics):
-    socketio.emit('current_metrics_response', new_metrics, room=CURRENT_METRICS_ROOM)
 
-# Register the callback when the application starts (or where socketio is initialized)
-# This assumes 'socketio' and 'system_monitor' are available in the scope where this registration happens.
-# In a typical Flask app, this would happen in your __init__.py or app.py after both are initialized.
-# For demonstration, we'll put it here.
-# Assuming this `sockets.py` is imported and its contents are run when the app starts.
+def send_current_metrics(metrics):
+    socketio.emit('current_metrics_response', metrics, room=CURRENT_METRICS_ROOM)
+
 system_monitor.register_metrics_callback(send_current_metrics)
 
 

@@ -40,6 +40,4 @@ def login():
 @jwt_required()
 def logout():
     """Logout the user."""
-    # In a real-world application, you might want to implement token blacklisting.
-    # For this example, we'll just send a confirmation message.
     return jsonify({"message": "Logged out successfully"}), 200

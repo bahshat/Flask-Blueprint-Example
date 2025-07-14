@@ -8,7 +8,7 @@ running = False
 thread = None
 
 metrics = {}
-metrics_update_callback = None # New: To hold the callback function
+metrics_update_callback = None
 
 def get_Metrics():
     return metrics
@@ -39,12 +39,11 @@ def capture_metrics():
         'nwStatRecv': net.bytes_recv
     }
 
-# New function: To register the callback
 def register_metrics_callback(callback_func):
     global metrics_update_callback
     metrics_update_callback = callback_func
 
-def start_logging(): # Removed socketio_instance parameter
+def start_logging(): 
     """Start logging the metrics in a background thread."""
     global running, thread
     if not running:
