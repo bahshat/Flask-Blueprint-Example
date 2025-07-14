@@ -1,7 +1,8 @@
 from flask_socketio import emit, join_room, leave_room
 from app.extensions import socketio
-from app.services.system_monitor import get_current_metrics
 from app.services.historic_data import get_historic_metrics
+from app.services.system_monitor import get_Metrics
+
 
 # Define room names
 CURRENT_METRICS_ROOM = 'current_metrics_room'
@@ -41,7 +42,7 @@ def on_leave(data):
 
 @socketio.on('get_current_metrics')
 def handle_get_current_metrics():
-    metrics = get_current_metrics()
+    metrics = get_Metrics()
     emit('current_metrics_response', metrics, room=CURRENT_METRICS_ROOM)
 
 @socketio.on('get_historic_metrics')

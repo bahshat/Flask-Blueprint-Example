@@ -1,10 +1,12 @@
 from flask import Flask
 from app.extensions import jwt, socketio
+from app.services import system_monitor
 
 # Import your blueprints
 from app.routes.main import home_bp
 from app.routes.auth import auth_bp
 from app.routes.device import device_bp
+from app.services.database import init_db
 
 # Import socket handlers
 from app import sockets
@@ -18,6 +20,11 @@ def create_app(config_class='config.DevelopmentConfig'):
     # Initialize extensions
     jwt.init_app(app)
     socketio.init_app(app)
+
+    # Initialize the database and start logging
+    with app.app_context():
+        init_db(app)
+        system_monitor.start_logging()
 
     # Register blueprints
     app.register_blueprint(home_bp, url_prefix='/')
