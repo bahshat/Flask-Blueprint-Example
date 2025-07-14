@@ -1,16 +1,28 @@
 from flask_socketio import emit, join_room, leave_room
 from app.extensions import socketio
 from app.services.historic_data import get_historic_metrics
-from app.services.system_monitor import get_Metrics
-
+from app.services import system_monitor
 
 # Define room names
 CURRENT_METRICS_ROOM = 'current_metrics_room'
 HISTORIC_DATA_ROOM = 'historic_data_room'
 
+# New: Function to handle metrics updates and emit via SocketIO
+def send_current_metrics_to_clients(new_metrics):
+    socketio.emit('current_metrics_response', new_metrics, room=CURRENT_METRICS_ROOM)
+
+# Register the callback when the application starts (or where socketio is initialized)
+# This assumes 'socketio' and 'system_monitor' are available in the scope where this registration happens.
+# In a typical Flask app, this would happen in your __init__.py or app.py after both are initialized.
+# For demonstration, we'll put it here.
+# Assuming this `sockets.py` is imported and its contents are run when the app starts.
+system_monitor.register_metrics_callback(send_current_metrics_to_clients)
+
+
 @socketio.on('connect')
 def handle_connect():
     print('Client connected')
+    # No need to start logging here, as it's started by the app itself.
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -21,11 +33,11 @@ def on_join(data):
     device_type = data.get('device_type', 'web')  # Default to 'web'
     
     join_room(CURRENT_METRICS_ROOM)
-    emit('status', {'msg': f'Joined {CURRENT_METRICS_ROOM}'})
+    emit('status', {'msg': f'Joined {CURRENT_METRICS_ROOM}'}, room=CURRENT_METRICS_ROOM)
 
     if device_type == 'mobile':
         join_room(HISTORIC_DATA_ROOM)
-        emit('status', {'msg': f'Joined {HISTORIC_DATA_ROOM}'})
+        emit('status', {'msg': f'Joined {HISTORIC_DATA_ROOM}'}, room=HISTORIC_DATA_ROOM)
 
 
 @socketio.on('leave')
@@ -33,17 +45,12 @@ def on_leave(data):
     device_type = data.get('device_type', 'web')
     
     leave_room(CURRENT_METRICS_ROOM)
-    emit('status', {'msg': f'Left {CURRENT_METRICS_ROOM}'})
+    emit('status', {'msg': f'Left {CURRENT_METRICS_ROOM}'}, room=CURRENT_METRICS_ROOM)
     
     if device_type == 'mobile':
         leave_room(HISTORIC_DATA_ROOM)
-        emit('status', {'msg': f'Left {HISTORIC_DATA_ROOM}'})
+        emit('status', {'msg': f'Left {HISTORIC_DATA_ROOM}'}, room=HISTORIC_DATA_ROOM)
 
-
-@socketio.on('get_current_metrics')
-def handle_get_current_metrics():
-    metrics = get_Metrics()
-    emit('current_metrics_response', metrics, room=CURRENT_METRICS_ROOM)
 
 @socketio.on('get_historic_metrics')
 def handle_get_historic_metrics(data):

@@ -3,12 +3,12 @@ import threading
 import time
 from app.services.database import write_to_db
 
-
 DB_PATH = None
 running = False
 thread = None
 
 metrics = {}
+metrics_update_callback = None # New: To hold the callback function
 
 def get_Metrics():
     return metrics
@@ -23,7 +23,9 @@ def capture_metrics():
                 if 'cpu' in name.lower() or 'core' in entry.label.lower():
                     cpu_temp = entry.current
                     break
-    
+            if cpu_temp:
+                break
+
     # TODO: Above nested logic must be simplified.
 
     mem = psutil.virtual_memory()
@@ -37,7 +39,12 @@ def capture_metrics():
         'nwStatRecv': net.bytes_recv
     }
 
-def start_logging():
+# New function: To register the callback
+def register_metrics_callback(callback_func):
+    global metrics_update_callback
+    metrics_update_callback = callback_func
+
+def start_logging(): # Removed socketio_instance parameter
     """Start logging the metrics in a background thread."""
     global running, thread
     if not running:
@@ -52,5 +59,6 @@ def log_metrics():
         global metrics
         metrics = capture_metrics()
         write_to_db(metrics)
+        if metrics_update_callback: # New: Call the registered callback
+            metrics_update_callback(metrics)
         time.sleep(1)
-
