@@ -2,7 +2,7 @@ import json
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from datetime import datetime, timedelta
-from app.services.historic_data import get_historic_metrics
+from app.services.database import get_historic_metrics
 
 device_bp = Blueprint('device', __name__)
 

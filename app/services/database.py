@@ -39,3 +39,13 @@ def write_to_db(metrics):
     except Exception as e:
         # In a real application, you'd want to log this error.
         print(f"Failed to write to DB: {e}")
+
+
+def get_historic_metrics(start_time, end_time):
+    """Get historic metrics from the database."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM metrics WHERE timestamp BETWEEN ? AND ?", (start_time, end_time))
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
