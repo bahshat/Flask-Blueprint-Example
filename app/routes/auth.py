@@ -8,6 +8,7 @@ auth_bp = Blueprint('auth', __name__)
 # Path to the users JSON file
 USERS_FILE = 'users.json'
 
+
 def load_users():
     """Load users from the JSON file."""
     try:
@@ -15,6 +16,7 @@ def load_users():
             return json.load(f)['users']
     except (FileNotFoundError, json.JSONDecodeError):
         return []
+
 
 @auth_bp.route('/login', methods=['POST'])
 def login():

@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from datetime import datetime, timedelta
 from app.models.db_operations import get_historic_metrics
+from app.models.data_manuplation import add_column_names
 
 device_bp = Blueprint('device', __name__)
 
@@ -33,7 +34,9 @@ def get_device_info():
 @device_bp.route('/history', methods=['GET'])
 @jwt_required()
 def get_device_parameter():
+    
     start_time = request.args.get('start_time')
+    
     if not start_time:
         return jsonify({"msg": "Start time is required"}), 400
     try:
@@ -41,29 +44,15 @@ def get_device_parameter():
     except ValueError:
         return jsonify({"msg": "Invalid start time format. Use 'YYYY-MM-DD HH:MM:SS'"}), 400
     
-    print(f"current now: {datetime.now()}") 
-
     formatedTime = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
-    end_time = formatedTime + timedelta(hours=1) # TODO: Post testing change this to 1 hour
-
-
+    end_time = formatedTime + timedelta(hours=1) 
     rows = get_historic_metrics(start_time, end_time)
 
-    print(f"current now: {datetime.now()}") 
-  
     if not rows:
         return jsonify({"msg": "No data found for the specified time range"}), 404
     
-    # Convert rows to a list of dictionaries
-    metrics = []
-    for row in rows:
-        metrics.append({
-            "timestamp": row[0],
-            "cpuUsage": row[1],
-            "cpuTemp": row[2],
-            "memUsed": row[3],
-            "nwStatSent": row[4],
-            "nwStatRecv": row[5]
-        })
+    metrics = add_column_names(rows)
     
     return jsonify(metrics), 200
+
+
