@@ -30,7 +30,7 @@ def get_device_info():
     return jsonify(device_info), 200
 
 
-@device_bp.route('/parameter', methods=['GET'])
+@device_bp.route('/history', methods=['GET'])
 @jwt_required()
 def get_device_parameter():
     start_time = request.args.get('start_time')

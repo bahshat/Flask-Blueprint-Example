@@ -59,7 +59,6 @@ def start_logging():
         thread.daemon = True
         thread.start()
 
-
 def log_metrics():
     """Continuously log metrics every second."""
     while running:
