@@ -8,11 +8,6 @@
     <h1>System Metrics</h1>
     <div id="metrics"></div>
     <hr>
-    <h2>Historic Data</h2>
-    <input type="text" id="start_time" placeholder="Start Time (YYYY-MM-DD HH:MM:SS)">
-    <input type="text" id="end_time" placeholder="End Time (YYYY-MM-DD HH:MM:SS)">
-    <button onclick="getHistoricData()">Get Historic Data</button>
-    <ul id="historic_data"></ul>
 
     <script>
         const socket = io.connect('http://' + document.domain + ':' + location.port);
@@ -37,28 +32,8 @@
             `;
         });
 
-        socket.on('historic_data_chunk', (data) => {
-            const historicDataUl = document.getElementById('historic_data');
-            data.forEach(row => {
-                const li = document.createElement('li');
-                li.textContent = row.join(', ');
-                historicDataUl.appendChild(li);
-            });
-        });
-
-        socket.on('historic_data_finished', () => {
-            console.log('Finished receiving historic data.');
-        });
-
         function getCurrentMetrics() {
             socket.emit('get_current_metrics');
-        }
-
-        function getHistoricData() {
-            const startTime = document.getElementById('start_time').value;
-            const endTime = document.getElementById('end_time').value;
-            document.getElementById('historic_data').innerHTML = ''; // Clear previous results
-            socket.emit('get_historic_metrics', {start_time: startTime, end_time: endTime});
         }
 
         getCurrentMetrics()
