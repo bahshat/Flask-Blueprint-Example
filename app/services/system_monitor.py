@@ -11,9 +11,6 @@ thread = None
 metrics = {}
 metrics_update_callback = None
 
-def get_Metrics():
-    return metrics
-
 def capture_metrics():
     """Get the current system metrics."""
     temps = psutil.sensors_temperatures()
