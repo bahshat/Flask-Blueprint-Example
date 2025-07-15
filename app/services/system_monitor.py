@@ -2,6 +2,7 @@ import psutil
 import threading
 import time
 from app.services.database import write_to_db
+from datetime import datetime
 
 DB_PATH = None
 running = False
@@ -31,7 +32,13 @@ def capture_metrics():
     mem = psutil.virtual_memory()
     net = psutil.net_io_counters()
 
+
+    # Capture the current time in a specific format
+    captured_at = datetime.now()
+    captured_at = captured_at.strftime("%Y-%m-%d %H:%M:%S")
+    
     return {
+        'timestamp': captured_at,
         'cpuUsage': psutil.cpu_percent(interval=1),
         'cpuTemp': cpu_temp,
         'memUsed': mem.used,
@@ -51,6 +58,7 @@ def start_logging():
         thread = threading.Thread(target=log_metrics)
         thread.daemon = True
         thread.start()
+
 
 def log_metrics():
     """Continuously log metrics every second."""

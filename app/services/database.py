@@ -1,6 +1,5 @@
 import sqlite3
 import os
-from datetime import datetime
 
 DB_PATH = None
 
@@ -22,13 +21,14 @@ def init_db(app):
     conn.commit()
     conn.close()
 
+
 def write_to_db(metrics):
     """Write the current metrics to the database."""
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute("INSERT INTO metrics VALUES (?, ?, ?, ?, ?, ?)", 
-                       (datetime.now().isoformat(),
+                       (metrics['timestamp'],
                         metrics['cpuUsage'],
                         metrics['cpuTemp'],
                         metrics['memUsed'],

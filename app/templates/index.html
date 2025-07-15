@@ -61,9 +61,7 @@
             socket.emit('get_historic_metrics', {start_time: startTime, end_time: endTime});
         }
 
-        // Request current metrics every 5 seconds
-        setInterval(getCurrentMetrics, 5000);
-
+        getCurrentMetrics()
     </script>
 </body>
 </html>
