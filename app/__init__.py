@@ -7,7 +7,7 @@ from app import sockets
 from app.routes.main import home_bp
 from app.routes.auth import auth_bp
 from app.routes.device import device_bp
-from app.services.database import init_db
+from app.models.database import init_db
 
 
 def create_app(config_class='config.DevelopmentConfig'):
