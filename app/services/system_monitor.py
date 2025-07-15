@@ -1,7 +1,7 @@
 import psutil
 import threading
 import time
-from app.models.database import write_to_db
+from app.models.db_operations import write_to_db
 from datetime import datetime
 
 DB_PATH = None
